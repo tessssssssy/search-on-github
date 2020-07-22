@@ -6,7 +6,11 @@ import { searchRepos } from './actions/repos'
 import Card from './Card.jsx'
 
 class App extends Component {
-  state = { search: "" }
+  constructor() {
+    super();
+    this.state = { search: ""}
+    this.callAjax = debounce(500, this.callAjax);
+  }
 
   searchGithub = async (search) => {
     const response = await fetch(`https://api.github.com/search/repositories?q=${search}`);
@@ -15,18 +19,17 @@ class App extends Component {
     this.props.dispatch(searchRepos(results))
   }
 
-  onInputChange = (e) => { 
-    e.persist();
-    debounce(1000, () => {
-      this.searchGithub(e.target.value)
-      this.setState({[e.target.id]: e.target.value})
+  callAjax = (value) => {
+    debounce(300, () => {
+      this.searchGithub(value)
     })()
-    // if (e.target.value.length > 2) {   
-    //   this.searchGithub(e.target.value)
-    //   this.setState({[e.target.id]: e.target.value})
-    // } 
   }
-
+  onInputChange = (e) => { 
+    // e.persist(); 
+    this.callAjax(e.target.value)
+    this.setState({[e.target.id]: e.target.value})
+  }
+  
   render() {
     console.log(this.props.repos)
     return (    
