@@ -1,10 +1,14 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
+import { debounce } from 'throttle-debounce';
+import { searchRepos } from './actions/repos'
+import Card from './Card.jsx'
 
 class Search extends Component {
   constructor() {
     super();
     this.state = { search: "" };
-    this.callAjax = debounce(500, this.callAjax);
+    this.callAjax = debounce(300, this.callAjax);
   }
 
   searchGithub = async (search) => {
@@ -22,8 +26,10 @@ class Search extends Component {
     })();
   };
   onInputChange = (e) => {
-    this.callAjax(e.target.value);
-    this.setState({ [e.target.id]: e.target.value });
+      if (e.target.value.length > 0) {
+        this.callAjax(e.target.value);
+        this.setState({ [e.target.id]: e.target.value });
+      }
   };
 
   render() {
@@ -56,4 +62,10 @@ class Search extends Component {
   }
 }
 
-export default Search;
+const mapStateToProps = repos => (
+    {
+      repos: repos
+    }
+)
+  
+export default connect(mapStateToProps)(Search);
