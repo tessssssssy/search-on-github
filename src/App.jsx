@@ -25,9 +25,10 @@ class App extends Component {
     })()
   }
   onInputChange = (e) => { 
-    // e.persist(); 
-    this.callAjax(e.target.value)
-    this.setState({[e.target.id]: e.target.value})
+    if (e.target.value.length > 0) {
+      this.callAjax(e.target.value)
+      this.setState({[e.target.id]: e.target.value})
+    }
   }
   
   render() {
