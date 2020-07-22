@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import './App.css';
+import { debounce } from 'throttle-debounce';
+import './App.scss';
 import { searchRepos } from './actions/repos'
-import Card from './Card'
+import Card from './Card.jsx'
 
 class App extends Component {
   state = { search: "" }
@@ -15,20 +16,28 @@ class App extends Component {
   }
 
   onInputChange = (e) => { 
-    if (e.target.value.length > 2) {   
+    e.persist();
+    debounce(1000, () => {
       this.searchGithub(e.target.value)
       this.setState({[e.target.id]: e.target.value})
-    } 
+    })()
+    // if (e.target.value.length > 2) {   
+    //   this.searchGithub(e.target.value)
+    //   this.setState({[e.target.id]: e.target.value})
+    // } 
   }
 
   render() {
     console.log(this.props.repos)
     return (    
       <div className="App">
-        <input type="text" id="search" onChange={this.onInputChange}></input>
+        <h1>Search Github</h1>
+        <input type="text" id="search" placeholder="search" onChange={this.onInputChange}></input>
+      <div className="cards-container">
         {this.props.repos && this.props.repos.results.items.map((repo, index) => {
           return <Card key={index} name={repo.name} stargazersCount={repo.stargazers_count} watchersCount={repo.watchers_count} url={repo.svn_url}/>
         }) }
+      </div>
       </div>
     );
   }
