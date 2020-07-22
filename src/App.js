@@ -1,26 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import './App.css';
+import { searchRepos } from './actions/repos'
+import Card from './Card'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = { search: "" }
+  
+  searchGithub = async (search) => {
+    const response = await fetch(`https://api.github.com/search/repositories?q=${search}`);
+    const results = await response.json();
+    console.log(results)
+    this.props.dispatch(searchRepos(results))
+  }
+
+  onInputChange = (e) => {
+    if (e.target.value.length > 2) {
+      this.setState({[e.target.name]: e.target.value})
+      this.searchGithub(this.state.search)
+    } 
+  }
+
+  render() {
+    return (    
+      <div className="App">
+        <input type="text" name="search" onChange={this.onInputChange}></input>
+        {this.props.repos && this.props.repos.items.map((repo) => {
+          return <Card name={repo.name} stargazers_count={repo.stargazers_count} watchers_count={repo.watchers_count}/>
+        }) }
+      </div>
+    );
+  }
 }
 
-export default App;
+const mapStateToProps = repos => (
+  {
+    repos: repos
+  }
+)
+  
+export default connect(mapStateToProps)(App)
